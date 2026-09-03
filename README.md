@@ -75,7 +75,7 @@ Quick Installation
 Clone the Repository:
 
 Bash
-git clone https://github.com/your-username/EchoYT.git
+git clone https://github.com/am0305961-eng/EchoYT.git
 cd EchoYT
 Install Python Dependencies:
 

@@ -28,9 +28,7 @@ A lightweight Python CLI application that automates searching for music on YouTu
 ---
 
 ## Installation
-
-1.
- Prerequisites & Google API Setup
+Prerequisites & Google API Setup
 Before running EchoYT, you need to set up your own API credentials in the Google Cloud Console:
 
 1. Enable APIs

@@ -29,7 +29,61 @@ A lightweight Python CLI application that automates searching for music on YouTu
 
 ## Installation
 
-1. **Clone the Repository:**
-   ```bash
-   git clone [https://github.com/am0305961-eng/EchoYT.git](https://github.com/am0305961-eng/EchoYT.git)
-   cd EchoYT
+1.
+ Prerequisites & Google API Setup
+Before running EchoYT, you need to set up your own API credentials in the Google Cloud Console:
+
+1. Enable APIs
+Create a new project in Google Cloud Console.
+
+Go to APIs & Services > Library.
+
+Search for and enable both YouTube Data API v3 and Google Drive API.
+
+2. Get a YouTube API Key
+Go to APIs & Services > Credentials.
+
+Click + Create Credentials > API Key.
+
+Copy your new key, open EchoYT.py, and paste it into the YOUTUBE_API_KEY configuration variable near the top of the file:
+
+Python
+YOUTUBE_API_KEY = "YOUR_YOUTUBE_API_KEY_HERE"
+3. Configure OAuth Consent & Add Yourself as a Tester
+Go to APIs & Services > OAuth consent screen.
+
+Select External and click Create.
+
+Fill in the app name and user support email.
+
+Under Test users, click + ADD USERS.
+
+IMPORTANT: Enter the Google email address you plan to use with EchoYT. (Since the app is in "Testing" mode, only explicitly added test users are allowed to log in).
+
+Save and finish.
+
+4. Download user secrets.json
+Go back to APIs & Services > Credentials.
+
+Click + Create Credentials > OAuth client ID.
+
+Select Desktop app as the Application type.
+
+Download the generated JSON credentials file.
+
+Rename the file to credentials.json and place it in the same directory as main.py.
+
+Quick Installation
+Clone the Repository:
+
+Bash
+git clone https://github.com/your-username/EchoYT.git
+cd EchoYT
+Install Python Dependencies:
+
+Bash
+pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib requests
+Run the Application:
+
+Bash
+python main.py

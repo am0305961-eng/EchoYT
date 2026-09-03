@@ -31,5 +31,5 @@ A lightweight Python CLI application that automates searching for music on YouTu
 
 1. **Clone the Repository:**
    ```bash
-   git clone [https://github.com/your-username/EchoYT.git](https://github.com/your-username/EchoYT.git)
+   git clone [https://github.com/am0305961/EchoYT.git](https://github.com/am0305961/EchoYT.git)
    cd EchoYT

@@ -85,3 +85,43 @@ Run the Application:
 
 Bash
 python main.py
+
+---
+
+Streaming Cloud Music on Linux (with Rclone & Strawberry) now after you done with setting up the API and codes now you need to stream your Google Drive music library directly inside a native Linux music player without downloading local files by mounting your cloud Music folder with Rclone and playing it through Strawberry Music Player.
+1. Install Rclone & Strawberry
+
+# Ubuntu / Debian / Zorin OS
+sudo apt install rclone strawberry
+
+# Arch Linux / Hyprland
+sudo pacman -S rclone strawberry
+
+2. Configure Rclone with Your Credentials
+To avoid Google security blocks and rate limits, connect Rclone using the same Client ID and Client Secret you generated for EchoYT:
+
+3. Run the Rclone setup wizard: rclone config
+
+4. Press n (New remote) and name it gdrive.
+
+Select Google Drive (Option often number 18).
+
+Paste your client_id and client_secret when prompted.
+
+Choose scope 1 (Full access).
+
+Press y for Auto-Config to open your browser, sign in with your Google Account, and grant permissions.
+
+5. Create a Local Mount Point & Mount
+Create a local directory for your cloud library and mount the Google Drive Music folder:
+
+mkdir -p ~/CloudMusic
+rclone mount gdrive:Music ~/CloudMusic --vfs-cache-mode full --poll-interval 10s &
+
+6. Auto-Mount on System Boot
+To keep ~/CloudMusic mounted automatically every time your PC starts:
+
+Desktop GUI (Startup Applications): Open Startup Applications in your desktop settings, add a new entry, and set the command to:
+  rclone mount gdrive:Music /home/YOUR_USERNAME/CloudMusic --vfs-cache-mode full --poll-interval 10s
+
+7. Lastly use Strawberry Music Player To run Your Music and Enojy!

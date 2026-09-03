@@ -1,10 +1,6 @@
 # EchoYT
-A lightweight Python CLI tool that searches YouTube, downloads high-quality audio with embedded cover art, and automatically syncs your music library to Google Drive.
 
-
-# EchoYT
-
-A lightweight Python CLI application that automates searching for music on YouTube, downloading high-quality audio with embedded cover art and metadata, and syncing tracks directly to your Google Drive `Music` folder.
+A lightweight Python CLI application that automates searching for music on YouTube, downloading high-quality audio with embedded cover art and metadata, and syncing tracks directly to your Google Drive `Music` folder, lightweight Python CLI tool that searches YouTube, downloads high-quality audio with embedded cover art, and automatically syncs your music library to Google Drive.
 
 ---
 

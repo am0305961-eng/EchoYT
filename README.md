@@ -184,3 +184,17 @@ python echoyt.py
 2. Complete the initial browser-based OAuth prompt if `token.pickle` is not present.
 3. Search for a song title or paste a YouTube URL.
 4. EchoYT downloads, converts, mounts `G:`, copies the file to `G:\Music`, and cleans up local temporary MP3 files upon success.
+
+---
+Mobile Playback (Android Setup)
+You can automatically stream your synced Google Drive music library on your phone without manually transferring files:
+
+Download Spiral Player from the play store (or any cloud-supported music player) from the Google Play Store on your Android device.
+
+Open Spiral Player, go to Storage / Sources, and select Google Drive.
+
+Sign in with the same Google Account you used for EchoYT.
+
+Select your Music folder.
+
+Result: Every time you download a song on your PC using EchoYT, it will instantly show up in Spiral Player on your phone ready to stream or download for offline listening!

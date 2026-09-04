@@ -198,3 +198,19 @@ Sign in with the same Google Account you used for EchoYT.
 Select your Music folder.
 
 Result: Every time you download a song on your PC using EchoYT, it will instantly show up in Spiral Player on your phone ready to stream or download for offline listening!
+---
+
+Security & Privacy FAQ
+Why do I need to create my own credentials.json?
+EchoYT runs 100% locally on your machine. To ensure complete privacy, protect your bandwidth, and prevent API rate limiting, EchoYT uses your own personal Google Cloud API quota instead of routing your traffic through a third-party server.
+
+Is my Google account data safe?
+Zero External Data Transfer: Your credentials (credentials.json) and session tokens (token.pickle) never leave your local computer.
+
+Minimal Permission Scopes: EchoYT only requests two specific permissions:
+
+youtube.readonly: Read-only access to search for tracks and metadata.
+
+drive: File operations restricted to mounting and syncing your target music folder.
+
+Transparent Source Code: EchoYT is fully open-source. You can inspect echoyt.py directly to verify how Google OAuth authentication and API calls are handled and enjoy :3 

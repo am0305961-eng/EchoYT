@@ -13,7 +13,10 @@ A lightweight Python CLI application that automates searching for music on YouTu
 * **Duplicate Detection:** Queries your Google Drive storage before uploading to prevent duplicate file transfers and save space.
 * **Local Space Cleanup:** Automatically cleans up local temporary MP3 files after a successful upload while keeping them safe if an upload fails.
 * **Smart Tool Inspector:** Automatically checks for required tools (`yt-dlp` and `ffmpeg`) with interactive auto-installation or manual setup instructions.
-
+* **Google OAuth Authentication:** Single sign-on for both YouTube API (`youtube.readonly`) and Google Drive integration using `credentials.json` and session caching (`token.pickle`).
+* **Automated Environment Setup:** On Windows systems, missing dependencies (`yt-dlp`, `FFmpeg`, `WinFsp`, and a portable `Rclone` binary) are detected and configured automatically without manual user setup.
+* **Seamless Cloud Mounting:** Automatically generates the required Rclone configuration using your existing OAuth credentials and mounts your full Google Drive root directory to drive letter **`G:`**.
+* **Smart Storage Sync:** Converts downloads locally into MP3 format, moves them into your targeted cloud folder (e.g., `G:\Music`), and safely purges local temporary files only after verified transfers.
 ---
 
 ## Prerequisites
@@ -27,7 +30,7 @@ A lightweight Python CLI application that automates searching for music on YouTu
 
 ---
 
-## Installation
+## Installation LUNIX
 Prerequisites & Google API Setup
 Before running EchoYT, you need to set up your own API credentials in the Google Cloud Console:
 
@@ -125,3 +128,59 @@ Desktop GUI (Startup Applications): Open Startup Applications in your desktop se
   rclone mount gdrive:Music /home/YOUR_USERNAME/CloudMusic --vfs-cache-mode full --poll-interval 10s
 
 7. Lastly use Strawberry Music Player To run Your Music and Enojy!
+
+---
+
+---
+### Windows
+
+## Prerequisites & Google Cloud Setup
+
+EchoYT requires a Google Cloud OAuth 2.0 client ID to communicate with YouTube and Google Drive.
+
+1. Go to the **[Google Cloud Console](https://console.cloud.google.com/)**.
+2. Create a project and enable the **Google Drive API**.
+3. Configure the OAuth Consent Screen and add the **`drive`** scopes.
+4. Create an **OAuth 2.0 Client ID** credential (Application type: *Desktop App*).
+5. Download the credentials JSON file, rename it to **`credentials.json`**, and place it directly inside the EchoYT root directory.
+
+---
+
+## Installation & Setup
+On Windows, EchoYT manages system packages using `winget` and `pip` automatically.
+
+1. Clone the repository and navigate into the project folder:
+```cmd
+git clone https://github.com/your-username/EchoYT.git
+cd EchoYT
+
+```
+
+
+2. Place your downloaded **`credentials.json`** inside the folder.
+3. Install Python dependencies:
+```cmd
+pip install -r requirements.txt
+
+```
+
+
+4. Run EchoYT:
+```cmd
+python echoyt.py
+
+```
+
+
+> **Note:** On first launch, EchoYT will download `yt-dlp`, install `FFmpeg` and `WinFsp` via `winget`, download portable `Rclone`, mount your Google Drive root to `G:`, and open a web browser to complete the Google OAuth login.
+
+
+
+---
+
+## Usage
+
+1. Start EchoYT using the command line interface.
+2. Complete the initial browser-based OAuth prompt if `token.pickle` is not present.
+3. Search for a song title or paste a YouTube URL.
+4. EchoYT downloads, converts, mounts `G:`, copies the file to `G:\Music`, and cleans up local temporary MP3 files upon success.

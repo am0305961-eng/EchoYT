@@ -6,7 +6,6 @@ import sys
 
 from pathlib import Path
 
-import requests
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -136,7 +135,7 @@ if not check_tools():
 # CONFIG
 # ============================================================
 
-YOUTUBE_API_KEY = "PUT YOUR API HERE"
+BASE_DIR = Path(__file__).resolve().parent
 
 SEARCH_RESULTS = 5
 
@@ -151,37 +150,107 @@ SCOPES = [
 # GOOGLE DRIVE AUTHENTICATION
 # ============================================================
 
+CREDENTIALS_PATH = BASE_DIR / "credentials.json"
+TOKEN_PATH = BASE_DIR / "token.pickle"
+
+
+def open_browser(url):
+    """Try to open a URL in the default browser."""
+    if shutil.which("xdg-open"):
+        subprocess.run(["xdg-open", url])
+    elif shutil.which("open"):
+        subprocess.run(["open", url])
+    elif sys.platform.startswith("win"):
+        os.startfile(url)
+    else:
+        print(f"\nPlease open this link manually:\n{url}")
+
+
+def guide_credentials_setup():
+    """Interactively guide the user to create credentials.json."""
+
+    print("\n" + "=" * 60)
+    print("  GOOGLE DRIVE SETUP NEEDED (one time)")
+    print("=" * 60)
+    print("""
+To upload songs to YOUR Google Drive, this app needs a small
+'credentials.json' file. It identifies the app to Google.
+
+Good news: you only do this ONCE, and you do NOT need to write
+any code or use the terminal.
+
+Follow these steps:
+""")
+
+    steps = [
+        "1. Open the Google Cloud Console link we open for you (below).",
+        "2. You may need to sign in with your Google account.",
+        "3. If it asks you to create a project, click ACCEPT / CREATE.",
+        "4. Go to 'APIs & Services' -> 'Enabled APIs & services'.",
+        "5. Click '+ ENABLE APIS AND SERVICES'.",
+        "6. Search for 'Google Drive API' and click it.",
+        "7. Click 'ENABLE'.",
+        "8. Go back to 'APIs & Services' -> 'Credentials'.",
+        "9. Click '+ CREATE CREDENTIALS', then 'OAuth client ID'.",
+        "10. For 'Application type' choose 'Desktop app'.",
+        "11. Click 'CREATE'.",
+        "12. Click 'DOWNLOAD JSON'.",
+        "13. Save the downloaded file as  credentials.json",
+        f"     in this folder: {BASE_DIR}",
+        "14. Press Enter here once you've saved it.",
+    ]
+
+    for s in steps:
+        print(s)
+
+    print("\nOpening Google Cloud Console in your browser...")
+
+    open_browser("https://console.cloud.google.com/welcome")
+
+    print("\nWaiting for you to save credentials.json...")
+    print("Press Enter once you've downloaded and saved it.")
+
+    input("\n[Press Enter when done] ")
+
+    return os.path.exists(CREDENTIALS_PATH)
+
+
 def authenticate_drive():
     """Authenticate with Google Drive."""
 
     creds = None
 
     # Reuse previous login
-    if os.path.exists("token.pickle"):
-        with open("token.pickle", "rb") as token:
+    if os.path.exists(TOKEN_PATH):
+        with open(TOKEN_PATH, "rb") as token:
             creds = pickle.load(token)
 
     # Refresh expired credentials
     if creds and creds.expired and creds.refresh_token:
         creds.refresh(Request())
 
-    # First login
+    # First login / missing credentials file
     if not creds or not creds.valid:
 
-        if not os.path.exists("credentials.json"):
+        while not os.path.exists(CREDENTIALS_PATH):
             print("\nERROR: credentials.json was not found!")
-            print("Put credentials.json next to this Python file.")
-            return None
+            print(f"Expected at: {CREDENTIALS_PATH}")
+            print("It does not exist yet, so let's set it up.\n")
+
+            if not guide_credentials_setup():
+                print("\ncredentials.json still not found.")
+                print("You can re-run the script and try again.")
+                return None
 
         flow = InstalledAppFlow.from_client_secrets_file(
-            "credentials.json",
+            str(CREDENTIALS_PATH),
             SCOPES
         )
 
         creds = flow.run_local_server(port=0)
 
         # Save login for next time
-        with open("token.pickle", "wb") as token:
+        with open(TOKEN_PATH, "wb") as token:
             pickle.dump(creds, token)
 
     print("Google Drive authentication successful!")
@@ -247,50 +316,70 @@ def search_youtube():
         print("Search can't be empty!")
         return None
 
-    params = {
-        "key": YOUTUBE_API_KEY,
-        "q": query,
-        "part": "snippet",
-        "type": "video",
-        "maxResults": SEARCH_RESULTS
-    }
+    print(f"\nSearching YouTube for '{query}'...\n")
 
-    response = requests.get(
-        "https://www.googleapis.com/youtube/v3/search",
-        params=params
-    )
+    # Use yt-dlp's built-in search (no API key needed)
+    search_url = f"ytsearch{SEARCH_RESULTS}:{query}"
 
-    if response.status_code != 200:
-        print("YouTube API error:")
-        print(response.text)
+    try:
+        result = subprocess.run(
+            [
+                "yt-dlp",
+                "--flat-playlist",
+                "--dump-json",
+                "--no-warnings",
+                "--playlist-end",
+                str(SEARCH_RESULTS),
+                search_url
+            ],
+            capture_output=True,
+            text=True
+        )
+    except FileNotFoundError:
+        print("yt-dlp was not found! Make sure it is installed.")
         return None
 
-    data = response.json()
-
-    items = data.get("items", [])
-
-    if not items:
-        print("No results found.")
+    if result.returncode != 0:
+        print("Search failed (maybe a network issue or YouTube blocking).")
+        print(result.stderr[-500:] if result.stderr else "Unknown error.")
         return None
 
     videos = {}
+    count = 0
 
-    print("\nResults:\n")
+    for line in result.stdout.strip().splitlines():
+        if not line.strip():
+            continue
 
-    for i, item in enumerate(items, start=1):
+        try:
+            import json
+            item = json.loads(line)
+        except json.JSONDecodeError:
+            continue
 
-        video_id = item["id"]["videoId"]
-        title = item["snippet"]["title"]
+        count += 1
+        video_id = item.get("id")
+        title = item.get("title") or "Untitled"
+
+        if not video_id:
+            continue
 
         url = f"https://www.youtube.com/watch?v={video_id}"
 
-        videos[i] = {
+        videos[count] = {
             "title": title,
             "url": url
         }
 
-        print(f"{i}. {title}")
-        print(f"   {url}\n")
+    if not videos:
+        print("No results found.")
+        return None
+
+    print("Results:\n")
+
+    for i, v in videos.items():
+        print(f"{i}. {v['title']}")
+        print(f"   {v['url']}\n")
 
     while True:
 
